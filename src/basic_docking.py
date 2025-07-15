@@ -132,7 +132,7 @@ def add_hydrogens_and_optimize(receptor_cryst1: str) -> str:
     print('Adding hydrogens and optimizing with reduce2.py...')
     output_path = '/tmp/receptor_cryst1FH.pdb' # ATTENTION
     # Find the path to the reduce2.py script within the micromamba environment (dwa_env)
-    micromamba_path = '/opt/conda/envs/dwa_env/lib/python3.9/site-packages'
+    micromamba_path = '/opt/conda/envs/dwa_env/lib/python3.11/site-packages'
     reduce2_path = os.path.join(micromamba_path, 'mmtbx', 'command_line', 'reduce2.py')
     reduce_opts = 'approach=add add_flip_movers=True'
 
