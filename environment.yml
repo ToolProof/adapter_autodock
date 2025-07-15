@@ -10,10 +10,11 @@ dependencies:
   - meeko
   - cctbx-base
   - pymol-open-source
+  - prody
   - pip
   - pip:
       - flask
       - python-dotenv
-      - prody
       - google-cloud-storage
       - git+https://github.com/forlilab/Meeko.git
+      - git+https://github.com/ToolProof/helpers-py.git

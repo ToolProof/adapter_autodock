@@ -5,7 +5,7 @@ import subprocess
 import os
 import shutil
 from typing import Dict, List, Union, Optional
-from shared.src.gcs_utils import download_from_gcs, upload_to_gcs
+from .utils.gcs_utils import download_from_gcs, upload_to_gcs
 
 def clear_tmp():
     '''
