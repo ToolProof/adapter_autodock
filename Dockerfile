@@ -18,7 +18,6 @@ RUN micromamba env create -f /app/environment.yml && \
 
 # Now copy code
 COPY src/ /app/src/
-COPY shared/ /app/shared/
 
 # Activate environment
 ENV MAMBA_DOCKERFILE_ACTIVATE=1

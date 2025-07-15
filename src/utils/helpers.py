@@ -5,7 +5,7 @@ def remove_ligand_from_complex(rec_raw):
     output_path = "/tmp/rec_no_lig.pdb"
     
     pymol_command = f"""
-    micromamba run -n ad_env pymol -qc -d "
+    micromamba run -n dwa_env pymol -qc -d "
     load {rec_raw};
     remove resn STI;
     save {output_path};

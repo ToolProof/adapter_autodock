@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 from .basic_docking import run_command, clear_tmp, retrieve_gcs_files, export_pose, add_protomers, prepare_receptor
-from shared.src.gcs_utils import upload_to_gcs
+from helpers_py.gcs_utils import download_from_gcs, upload_to_gcs
 
 def prepare_reactive_ligand(lig_smiles, reactive_groups=None):
     print("Preparing reactive ligand...")
@@ -14,7 +14,7 @@ def prepare_reactive_ligand(lig_smiles, reactive_groups=None):
         # Use --reactive parameter as per Meeko docs
         reactive_params = f"--reactive {','.join(reactive_groups)}"
     
-    run_command(f"micromamba run -n ad_env mk_prepare_ligand.py -i {lig_with_protomers} "
+    run_command(f"micromamba run -n dwa_env mk_prepare_ligand.py -i {lig_with_protomers} "
                 f"--multimol_outdir {output_path} {reactive_params} --add_covalent_maps")
     return f"{output_path}/_i0.pdbqt"
 
@@ -34,7 +34,7 @@ def run_reactive_docking(lig_prepared, rec_prepared, reactive_residues):
             # Default to a standard format if only residue name/number is provided
             residue_params = f"--covalent {reactive_residues}:SG:2.0"
     
-    run_command(f"micromamba run -n ad_env vina --ligand {lig_prepared} --receptor {rec_prepared} "
+    run_command(f"micromamba run -n dwa_env vina --ligand {lig_prepared} --receptor {rec_prepared} "
                 f"--config {config_txt} --out {output_path} {residue_params}")
     return output_path
 

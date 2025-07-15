@@ -17,4 +17,4 @@ dependencies:
       - python-dotenv
       - google-cloud-storage
       - git+https://github.com/forlilab/Meeko.git
-      - git+https://github.com/ToolProof/helpers-py.git
+      - git+https://github.com/ToolProof/helpers_py.git
