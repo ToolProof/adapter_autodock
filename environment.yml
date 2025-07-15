@@ -1,0 +1,19 @@
+name: dwa_env
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy
+  - scipy
+  - rdkit
+  - gemmi
+  - meeko
+  - cctbx-base
+  - pymol-open-source
+  - pip
+  - pip:
+      - flask
+      - python-dotenv
+      - prody
+      - google-cloud-storage
+      - git+https://github.com/forlilab/Meeko.git

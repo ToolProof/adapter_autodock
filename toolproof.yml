@@ -1,0 +1,51 @@
+description: >
+  This repository contains three docking jobs: basic_docking, reactive_docking, and tethered_docking.
+  Each job prepares ligands and receptors and runs variations of docking workflows using AutoDock.
+
+jobs:
+
+  basic_docking_with_autodock:
+    description: >
+      Prepares a ligand and receptor, generates docking box, runs docking with AutoDock Vina, 
+      and exports the pose to SDF format. Inputs and outputs are GCS paths.
+    inputs:
+      - name: ligand
+        type: smiles
+        format: text/plain
+        description: Path to a `.smi` file with the SMILES string of the ligand.
+      - name: receptor
+        type: pdb
+        format: chemical/x-pdb
+        description: Path to a `.pdb` file of the receptor.
+      - name: box
+        type: pdb
+        format: chemical/x-pdb
+        description: Path to a `.pdb` file of the docking box.
+      - name: dirname
+        type: gcs-path
+        format: text/plain
+        description: GCS directory to upload outputs.
+    outputs:
+      - name: docking
+        type: pdbqt
+        format: chemical/x-pdbqt
+        description: Raw docking output from AutoDock Vina.
+      - name: pose
+        type: sdf
+        format: chemical/x-mdl-sdfile
+        description: Docked pose exported to SDF format.
+      - name: target
+        type: pdb
+        format: chemical/x-pdb
+        description: Receptor with hydrogens and CRYST1 metadata.
+    status: active
+
+  reactive_docking_with_autodock:
+    description: >
+      Reactive docking with covalent bond constraints. Not yet implemented.
+    status: planned
+
+  tethered_docking_with_autodock:
+    description: >
+      Docking with spatial tethering of ligand fragments. Not yet implemented.
+    status: planned

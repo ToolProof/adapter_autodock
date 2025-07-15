@@ -1,0 +1,1 @@
+docker run -it     -v $(pwd)/gcp-key.json:/app/gcp-key.json:ro     -e GOOGLE_APPLICATION_CREDENTIALS=/app/gcp-key.json     -p 8080:8080 --name test_container test_image
