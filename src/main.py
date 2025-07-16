@@ -2,7 +2,8 @@
 Docstring
 '''
 from flask import Flask, request, jsonify
-from src import basic_docking, reactive_docking
+from src.jobs import basic_docking
+from src.jobs import reactive_docking
 
 app = Flask(__name__) 
 

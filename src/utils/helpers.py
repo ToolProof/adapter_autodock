@@ -1,4 +1,4 @@
-from basic_docking import upload_to_gcs
+from helpers_py.gcs_utils import upload_to_gcs
 
 def remove_ligand_from_complex(rec_raw):
     
