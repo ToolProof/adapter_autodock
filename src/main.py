@@ -47,21 +47,19 @@ def autodock_reactive():
         
         try:
             # Extract arguments from JSON payload
-            lig_name = data.get('lig_name')
-            lig_smiles_path = data.get('lig_smiles_path')
-            lig_box_path = data.get('lig_box_path')
-            rec_name = data.get('rec_name')
-            rec_no_lig_path = data.get('rec_no_lig_path')
+            ligand = data.get('candidate')
+            receptor = data.get('target')
+            box = data.get('box')
+            dirname = data.get('outputDir')
             reactive_groups = data.get('reactive_groups', None)
             reactive_residues = data.get('reactive_residues', None)
 
             # Call the workflow from reactive_docking
             result = reactive_docking.run_job(
-                lig_name, 
-                lig_smiles_path, 
-                lig_box_path, 
-                rec_name, 
-                rec_no_lig_path,
+                ligand, 
+                receptor, 
+                box, 
+                dirname,
                 reactive_groups,
                 reactive_residues
             )

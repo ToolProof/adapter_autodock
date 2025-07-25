@@ -30,6 +30,10 @@ RUN git clone --single-branch --branch develop https://github.com/ToolProof/mols
 
 RUN git clone https://github.com/ToolProof/geostd.git
 
+RUN micromamba run -n dwa_env pip install --no-cache-dir --force-reinstall \
+  "numpy<1.24" \
+  git+https://github.com/forlilab/Meeko.git
+
 EXPOSE 8080
 
 CMD ["micromamba", "run", "-n", "dwa_env", "python", "-m", "src.main"]
