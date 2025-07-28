@@ -1,6 +1,10 @@
+'''
+Docstring
+'''
 import os
-from .autodock_basic import run_command, clear_tmp, retrieve_gcs_files, export_pose, add_protomers, prepare_receptor
-from helpers_py.gcs_utils import download_from_gcs, upload_to_gcs
+from helpers_py.gcs_utils import upload_to_gcs
+from helpers_py.os_utils import run_command, clear_tmp
+from src.helpers.autodock_utils import add_protomers, prepare_receptor, export_pose, retrieve_gcs_files
 
 def prepare_reactive_ligand(lig_smiles: str, reactive_groups=None):
     print('Preparing reactive ligand...')

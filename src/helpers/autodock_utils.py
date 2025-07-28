@@ -1,51 +1,7 @@
-'''
-Docstring
-'''
-import subprocess
 import os
-import shutil
-from typing import Dict, List, Union, Optional
-from helpers_py.gcs_utils import download_from_gcs, upload_to_gcs
-
-def clear_tmp():
-    '''
-    Clears the temporary directory.
-    '''
-    tmp_dir = '/tmp'
-    for filename in os.listdir(tmp_dir):
-        file_path = os.path.join(tmp_dir, filename)
-        try:
-            if os.path.isfile(file_path) or os.path.islink(file_path):
-                os.unlink(file_path)
-            elif os.path.isdir(file_path):
-                shutil.rmtree(file_path)
-        except Exception as e:
-            print(f'Failed to delete {file_path}: {e}')
-
-
-def run_command(command: str, check: bool = True, env: Optional[Dict[str, str]] = None) -> subprocess.CompletedProcess[str]:
-    '''
-    Runs a shell command and optionally checks for errors.
-    '''
-    try:
-        result = subprocess.run(command, shell=True, check=check, text=True, capture_output=True, env=env)
-        print(result.stdout)
-        return result
-    except subprocess.CalledProcessError as e:
-        print(f'Error while running command: {command}')
-        print(f'Stderr: {e.stderr}')  # More detailed error output
-        raise
-
-
-def prepare_ligand(ligand: str) -> str:
-    '''
-    Prepares the ligand for docking by generating its protomers.
-    '''
-    print('Preparing ligand...')
-    output_path = '/tmp/ligand_protomers'
-    ligand_with_protomers = add_protomers(ligand)
-    run_command(f'micromamba run -n adapter_autodock_env mk_prepare_ligand.py -i {ligand_with_protomers} --multimol_outdir {output_path}')
-    return f'{output_path}/_i0.pdbqt' # ATTENTION: hack since output_path is a directory
+from typing import List
+from helpers_py.gcs_utils import download_from_gcs
+from helpers_py.os_utils import run_command
 
 
 def add_protomers(ligand: str) -> str:
@@ -108,7 +64,7 @@ EOF
 ''')
     print(f'Receptor atoms extracted: saved to {output_path}')
     return output_path
-    
+
 
 def extract_and_combine_cryst1(receptor: str, receptor_atoms: str) -> str:
     '''
@@ -161,14 +117,20 @@ def add_hydrogens_and_optimize(receptor_cryst1: str) -> str:
     return output_path
 
 
-def run_docking(ligand_prepared: str, receptor_prepared: str) -> str:
-    '''
-    Runs the docking simulation using Vina.
-    '''
-    print('Running docking...')
-    output_path = '/tmp/docking.pdbqt'
-    config_txt = '/tmp/receptor_prepared.box.txt' # ATTENTION
-    run_command(f'micromamba run -n adapter_autodock_env vina --ligand {ligand_prepared} --receptor {receptor_prepared} --config {config_txt} --out {output_path}')
+def remove_ligand_from_complex(rec_raw: str) -> str:
+    
+    output_path = "/tmp/rec_no_lig.pdb"
+    
+    pymol_command = f"""
+    micromamba run -n adapter_autodock_env pymol -qc -d "
+    load {rec_raw};
+    remove resn STI;
+    save {output_path};
+    quit
+    "
+    """
+    run_command(pymol_command)
+    print(f"Ligand removed: saved to {output_path}")
     return output_path
 
 
@@ -195,60 +157,3 @@ def retrieve_gcs_files(remote_paths: List[str]) -> List[str]:
             
     
     return local_files
-
-
-def run_job(ligand: str, receptor: str, box: str, dirname: str) -> Dict[str, Union[str, List[str]]]:
-    '''
-    Docstring
-    '''
-    try:
-        clear_tmp()  # Clear temp files before running
-        
-        # Download necessary files from Cloud Storage
-        remote_paths = [ligand, receptor, box]
-        local_paths = retrieve_gcs_files(remote_paths)
-
-        # Extract local paths for function calls
-        ligand_local = local_paths[0]    # corresponds to ligand
-        receptor_local = local_paths[1]  # corresponds to receptor
-        box_local = local_paths[2]       # corresponds to box
-        
-        ligand_prepared = prepare_ligand(ligand_local)
-        
-        target, receptor_prepared = prepare_receptor(receptor_local, box_local)
-        
-        docking = run_docking(ligand_prepared, receptor_prepared)
-        
-        pose = export_pose(docking) 
-        
-        # Upload files to GCS
-        
-        files_to_upload = [
-            (docking, os.path.basename(docking)),
-            (pose, os.path.basename(pose)),
-            (target, os.path.basename(target)), # Used for visualization
-        ]
-        
-        success_files: List[str] = []
-        failed_files: List[str] = []
-
-        # Upload files to GCS
-        for local_path, filename in files_to_upload:
-            if os.path.exists(local_path):
-                if upload_to_gcs(local_path, dirname, filename):
-                    success_files.append(filename)
-                else:
-                    failed_files.append(filename)
-            else:
-                print(f'File not found: {local_path}')
-                failed_files.append(filename)
-        
-        print('Upload summary:')
-        print(f'Successfully uploaded: {success_files}')
-        print(f'Failed uploads: {failed_files}')
-
-        if failed_files:
-            return {'status': 'partial_success', 'outputs': success_files, 'failed_files': failed_files}
-        return {'status': 'success', 'outputs': success_files} 
-    except Exception as e:
-        raise RuntimeError(f'Workflow failed: {e}')
