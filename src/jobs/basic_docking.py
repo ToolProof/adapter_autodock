@@ -49,7 +49,7 @@ def run_job(ligand: str, receptor: str, box: str, dirname: str) -> Dict[str, Uni
         
         ligand_prepared = prepare_ligand(ligand_local)
         
-        receptor_visualization, receptor_prepared = prepare_receptor(receptor_local, box_local)
+        receptor_pose, receptor_prepared = prepare_receptor(receptor_local, box_local)
         
         ligand_docking = run_docking(ligand_prepared, receptor_prepared)
         
@@ -62,7 +62,7 @@ def run_job(ligand: str, receptor: str, box: str, dirname: str) -> Dict[str, Uni
         files_to_upload = [
             (ligand_docking, f"{dirname}ligand_docking/", f"{timestamp}.pdbqt", "ligand_docking"),
             (ligand_pose, f"{dirname}ligand_pose/", f"{timestamp}.sdf", "ligand_pose"),
-            (receptor_visualization, f"{dirname}receptor_visualization/", f"{timestamp}.pdb", "receptor_visualization"),
+            (receptor_pose, f"{dirname}receptor_pose/", f"{timestamp}.pdb", "receptor_pose"),
         ]
         
         success_files: Dict[str, str] = {}
@@ -88,7 +88,7 @@ def run_job(ligand: str, receptor: str, box: str, dirname: str) -> Dict[str, Uni
                 'outputs': {
                     'ligand_docking': success_files.get('ligand_docking'),
                     'ligand_pose': success_files.get('ligand_pose'),
-                    'receptor_visualization': success_files.get('receptor_visualization')
+                    'receptor_pose': success_files.get('receptor_pose')
                 },
                 'metadata': {
                     'status': 'partial_success',
@@ -99,7 +99,7 @@ def run_job(ligand: str, receptor: str, box: str, dirname: str) -> Dict[str, Uni
             'outputs': {
                 'ligand_docking': success_files['ligand_docking'],
                 'ligand_pose': success_files['ligand_pose'],
-                'receptor_visualization': success_files['receptor_visualization']
+                'receptor_pose': success_files['receptor_pose']
             },
             'metadata': {
                 'status': 'success'
