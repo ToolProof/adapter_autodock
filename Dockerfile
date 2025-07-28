@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y git build-essential
 # Create conda environment
 RUN micromamba env create -f /app/environment.yml && \
     micromamba install -n adapter_autodock_env -c conda-forge vina -y && \
+    micromamba run -n adapter_autodock_env pip install --force-reinstall --no-cache-dir git+https://github.com/ToolProof/helpers_py.git && \
     micromamba clean --all --yes
 
 # Now copy code
