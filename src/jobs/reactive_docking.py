@@ -17,7 +17,7 @@ def prepare_reactive_ligand(lig_smiles: str, reactive_groups=None):
         # Use --reactive parameter as per Meeko docs
         reactive_params = f"--reactive {','.join(reactive_groups)}"
     
-    run_command(f'micromamba run -n dwa_env mk_prepare_ligand.py -i {lig_with_protomers} '
+    run_command(f'micromamba run -n adapter_autodock_env mk_prepare_ligand.py -i {lig_with_protomers} '
                 f'--multimol_outdir {output_path} {reactive_params}')
     return f'{output_path}/_i0.pdbqt'
 
@@ -37,7 +37,7 @@ def run_reactive_docking(ligand_prepared: str, receptor_prepared: str, reactive_
             # Default to a standard format if only residue name/number is provided
             residue_params = f'--covalent {reactive_residues}:SG:2.0'
     
-    run_command(f'micromamba run -n dwa_env vina --ligand {ligand_prepared} --receptor {receptor_prepared} --config {config_txt} --out {output_path} {residue_params}')
+    run_command(f'micromamba run -n adapter_autodock_env vina --ligand {ligand_prepared} --receptor {receptor_prepared} --config {config_txt} --out {output_path} {residue_params}')
     return output_path
 
 def run_job(ligand: str, receptor: str, box: str, dirname: str, reactive_groups=None, reactive_residues=None):
