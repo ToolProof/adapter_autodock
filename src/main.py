@@ -2,13 +2,13 @@
 Docstring
 '''
 from flask import Flask, request, jsonify
-from src.jobs import basic_docking
-from src.jobs import reactive_docking
+from src.jobs import autodock_basic
+from src.jobs import autodock_reactive
 
 app = Flask(__name__) 
 
-@app.route('/autodock_basic', methods=['GET', 'POST'])
-def autodock_basic():
+@app.route('/adapter_autodock_basic', methods=['GET', 'POST'])
+def adapter_autodock_basic():
     '''
     Docstring
     '''
@@ -28,7 +28,7 @@ def autodock_basic():
             print(f'Ligand: {ligand}, Receptor: {receptor}, Box: {box}')
 
             # Call the workflow from basic_docking
-            result = basic_docking.run_job(ligand, receptor, box, dirname)
+            result = autodock_basic.run_job(ligand, receptor, box, dirname)
             return jsonify({'message': 'Automation completed successfully', 'result': result}), 200
         except Exception as e:
             return jsonify({'error': str(e)}), 500
@@ -36,8 +36,8 @@ def autodock_basic():
     return jsonify({'message': 'Basic docking endpoint'})
 
 
-@app.route('/autodock_reactive', methods=['GET', 'POST'])
-def autodock_reactive():
+@app.route('/adapter_autodock_reactive', methods=['GET', 'POST'])
+def adapterautodock_reactive():
     if request.method == 'POST':
         data = request.json
         if not data:
@@ -56,7 +56,7 @@ def autodock_reactive():
             reactive_residues = data.get('reactive_residues', None)
 
             # Call the workflow from reactive_docking
-            result = reactive_docking.run_job(
+            result = autodock_reactive.run_job(
                 lig_name, 
                 lig_smiles_path, 
                 lig_box_path, 
