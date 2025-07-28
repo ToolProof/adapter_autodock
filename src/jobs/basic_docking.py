@@ -44,7 +44,7 @@ def prepare_ligand(ligand: str) -> str:
     print('Preparing ligand...')
     output_path = '/tmp/ligand_protomers'
     ligand_with_protomers = add_protomers(ligand)
-    run_command(f'micromamba run -n dwa_env mk_prepare_ligand.py -i {ligand_with_protomers} --multimol_outdir {output_path}')
+    run_command(f'micromamba run -n adapter_autodock_env mk_prepare_ligand.py -i {ligand_with_protomers} --multimol_outdir {output_path}')
     return f'{output_path}/_i0.pdbqt' # ATTENTION: hack since output_path is a directory
 
 
@@ -62,7 +62,7 @@ def add_protomers(ligand: str) -> str:
         raise RuntimeError(f'Failed to read SMILES file {ligand}: {e}') from e
 
     # Run the command with the SMILES string
-    run_command(f'micromamba run -n dwa_env scrub.py "{smiles_string}" -o {output_path} --skip_tautomers --ph_low 5 --ph_high 9')
+    run_command(f'micromamba run -n adapter_autodock_env scrub.py "{smiles_string}" -o {output_path} --skip_tautomers --ph_low 5 --ph_high 9')
     
     return output_path
 
@@ -87,7 +87,7 @@ def prepare_receptor(receptor: str, box: str) -> tuple[str, str]:
     print(f'Hydrogens added and optimized: saved to {receptor_cryst1FH}')
 
     # Step 4: Prepare receptor for docking
-    run_command(f'micromamba run -n dwa_env mk_prepare_receptor.py --read_pdb {receptor_cryst1FH} -o {intermediate_path} -p -v --box_enveloping {box} --padding 5')
+    run_command(f'micromamba run -n adapter_autodock_env mk_prepare_receptor.py --read_pdb {receptor_cryst1FH} -o {intermediate_path} -p -v --box_enveloping {box} --padding 5')
     print('Receptor preparation complete.')
     return receptor_cryst1FH, output_path
 
@@ -97,7 +97,7 @@ def extract_receptor_atoms(receptor: str) -> str:
     Extracts the receptor atoms from the PDB file.
     '''
     output_path = '/tmp/receptor_atoms.pdb'
-    run_command(f'''micromamba run -n dwa_env python3 - <<EOF
+    run_command(f'''micromamba run -n adapter_autodock_env python3 - <<EOF
 from prody import parsePDB, writePDB
 pdb_token = '{receptor}'
 atoms_from_pdb = parsePDB(pdb_token)
@@ -131,8 +131,8 @@ def add_hydrogens_and_optimize(receptor_cryst1: str) -> str:
     '''
     print('Adding hydrogens and optimizing with reduce2.py...')
     output_path = '/tmp/receptor_cryst1FH.pdb' # ATTENTION
-    # Find the path to the reduce2.py script within the micromamba environment (dwa_env)
-    micromamba_path = '/opt/conda/envs/dwa_env/lib/python3.11/site-packages'
+    # Find the path to the reduce2.py script within the micromamba environment (adapter_autodock_env)
+    micromamba_path = '/opt/conda/envs/adapter_autodock_env/lib/python3.11/site-packages'
     reduce2_path = os.path.join(micromamba_path, 'mmtbx', 'command_line', 'reduce2.py')
     reduce_opts = 'approach=add add_flip_movers=True'
 
@@ -149,7 +149,7 @@ def add_hydrogens_and_optimize(receptor_cryst1: str) -> str:
 
     # Run reduce2.py within the micromamba environment
     run_command(
-        f'micromamba run -n dwa_env python3 {reduce2_path} {receptor_cryst1} {reduce_opts}', 
+        f'micromamba run -n adapter_autodock_env python3 {reduce2_path} {receptor_cryst1} {reduce_opts}', 
         env=env
     )
     
@@ -168,7 +168,7 @@ def run_docking(ligand_prepared: str, receptor_prepared: str) -> str:
     print('Running docking...')
     output_path = '/tmp/docking.pdbqt'
     config_txt = '/tmp/receptor_prepared.box.txt' # ATTENTION
-    run_command(f'micromamba run -n dwa_env vina --ligand {ligand_prepared} --receptor {receptor_prepared} --config {config_txt} --out {output_path}')
+    run_command(f'micromamba run -n adapter_autodock_env vina --ligand {ligand_prepared} --receptor {receptor_prepared} --config {config_txt} --out {output_path}')
     return output_path
 
 
@@ -178,7 +178,7 @@ def export_pose(docking: str) -> str:
     '''
     print('Exporting docked pose...')
     output_path = '/tmp/pose.sdf'
-    run_command(f'micromamba run -n dwa_env mk_export.py {docking} -s {output_path}')
+    run_command(f'micromamba run -n adapter_autodock_env mk_export.py {docking} -s {output_path}')
     return output_path
 
 
