@@ -31,7 +31,7 @@ def run_docking(ligand_prepared: str, receptor_prepared: str) -> str:
     return output_path
 
 
-def run_job(ligand: str, receptor: str, box: str, dirname: str) -> Dict[str, Union[Dict[str, Union[str, None]], Dict[str, Union[str, List[str]]]]]:
+def run_job(ligand: str, receptor: str, box: str, dirname: str) -> Dict[str, Union[Dict[str, Union[str, None]], Dict[str, Union[str, Dict[str, float]]]]]:
     '''
     Docstring
     '''
@@ -91,8 +91,10 @@ def run_job(ligand: str, receptor: str, box: str, dirname: str) -> Dict[str, Uni
                     'receptor_pose': success_files.get('receptor_pose')
                 },
                 'metadata': {
-                    'status': 'partial_success',
-                    'failed_files': failed_files
+                    'output': 'ligand_docking',
+                    'metadata': {
+                        'score': 0.0, # ATTENTION_RONAK: This is your task! You need to extract the score from the ligand_docking /tmp file and return it here. Later, a validator will be implemented to scan the source code for jobs and check that the specified metadata is present.
+                    }
                 }
             }
         return {
