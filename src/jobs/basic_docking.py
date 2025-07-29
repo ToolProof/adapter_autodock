@@ -30,6 +30,17 @@ def run_docking(ligand_prepared: str, receptor_prepared: str) -> str:
     run_command(f'micromamba run -n adapter_autodock_env vina --ligand {ligand_prepared} --receptor {receptor_prepared} --config {config_txt} --out {output_path}')
     return output_path
 
+def extract_vina_score(pdbqt_path: str) -> float:
+    try:
+        with open(pdbqt_path, 'r') as f:
+            for line in f:
+                if line.startswith("REMARK VINA RESULT:"):
+                    parts = line.strip().split()
+                    return float(parts[3])
+    except Exception as e:
+        print(f"Failed to extract Vina score: {e}")
+    return 0.0
+
 
 def run_job(ligand: str, receptor: str, box: str, dirname: str) -> Dict[str, Union[Dict[str, Union[str, None]], Dict[str, Union[str, Dict[str, float]]]]]:
     '''
@@ -82,6 +93,9 @@ def run_job(ligand: str, receptor: str, box: str, dirname: str) -> Dict[str, Uni
         print('Upload summary:')
         print(f'Successfully uploaded: {list(success_files.values())}')
         print(f'Failed uploads: {failed_files}')
+        
+        score = extract_vina_score(ligand_docking)
+        print(f'Vina score: {score}')
 
         if failed_files:
             return {
@@ -93,7 +107,7 @@ def run_job(ligand: str, receptor: str, box: str, dirname: str) -> Dict[str, Uni
                 'metadata': {
                     'output': 'ligand_docking',
                     'metadata': {
-                        'score': 0.0, # ATTENTION_RONAK_1: This is your main task! You need to extract the score from the ligand_docking /tmp file and return it here. Later, a validator will be implemented to scan the source code for jobs and check that the specified metadata is present.
+                        'score': score, # ATTENTION_RONAK_1: This is your main task! You need to extract the score from the ligand_docking /tmp file and return it here. Later, a validator will be implemented to scan the source code for jobs and check that the specified metadata is present.
                     }
                 }
             }
@@ -104,7 +118,10 @@ def run_job(ligand: str, receptor: str, box: str, dirname: str) -> Dict[str, Uni
                 'receptor_pose': success_files['receptor_pose']
             },
             'metadata': {
-                'status': 'success'
+                'status': 'success',
+                'metadata': {
+                    'score': score, # ATTENTION_RONAK_1: This is your main task! You need to extract the score from the ligand_docking /tmp file and return it here. Later, a validator will be implemented to scan the source code for jobs and check that the specified metadata is present.
+                }
             }
         } 
     except Exception as e:
