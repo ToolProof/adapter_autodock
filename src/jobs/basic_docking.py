@@ -93,7 +93,7 @@ def run_job(ligand: str, receptor: str, box: str, dirname: str) -> Dict[str, Uni
                 'metadata': {
                     'output': 'ligand_docking',
                     'metadata': {
-                        'score': 0.0, # ATTENTION_RONAK: This is your task! You need to extract the score from the ligand_docking /tmp file and return it here. Later, a validator will be implemented to scan the source code for jobs and check that the specified metadata is present.
+                        'score': 0.0, # ATTENTION_RONAK_1: This is your main task! You need to extract the score from the ligand_docking /tmp file and return it here. Later, a validator will be implemented to scan the source code for jobs and check that the specified metadata is present.
                     }
                 }
             }
